@@ -1,0 +1,185 @@
+<!-- we are not using extended b/c base.htm is not in same directory -->
+{% include "store/base.html" %} {% load static %} {% load mathfilters %} 
+{% block content %}
+
+<main class="pt-5">
+  <div class="container">
+    <h1 class="h5">Shopping cart</h1>
+
+    <hr />
+
+    <!-- looping each product  {'3': {'price': '30.00', 'qty': 1}}-->
+
+    {% for item in cart %} {% with product=item.product %}
+
+    <br />
+
+    <div class="row mb-4 border product-item">
+      <div class="col-md-3 col-lg-2 order-md-first bg-light">
+        <img
+          class="img-fluid mx-auto d-block"
+          width="200px"
+          alt="Responsive image"
+          src="{{product.image.url}}"
+        />
+        <!-- Product image -->
+      </div>
+
+      <div class="col-md-9 col-lg-10 ps-md-3 ps-lg-10">
+        <a
+          href="{{product.get_absolute_url}}"
+          class="text-decoration-none text-reset"
+        >
+          <!-- Product get absolute url -->
+
+          <h1 class="h5 pt-2">{{product.title}}</h1>
+        </a>
+
+        <div class="border">
+          <div class="col border-bottom">
+            <div class="row p-3">
+              <div class="col-6">Product</div>
+
+              <div class="col-6 text-end">
+                <span class="h6 fw-bold"
+                  >$ {{product.price|mul:item.qty}}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="row p-3">
+              <div class="col-12">
+                <label for="select">Qty</label>
+
+                &nbsp;
+
+                <select id="select{{product.id}}">
+                  <option selected>{{item.qty}}</option>
+
+                  <option value="">1</option>
+
+                  <option value="">2</option>
+
+                  <option value="">3</option>
+
+                  <option value="">4</option>
+                </select>
+
+                <br />
+                <br />
+
+                <!-- we are using data-index b/c we can update and delete multiple products without facing issue when sending id to backEnd -->
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm update-button"
+                  data-index="{{product.id}}"
+                >
+                  Update
+                </button>
+
+                &nbsp;
+
+                <button
+                  type="button"
+                  class="btn btn-danger btn-sm delete-button"
+                  data-index="{{product.id}}"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% endwith %} {% endfor %}
+
+    {% if cart %}
+      <div class="col-12 text-end">
+        <div class="h6 fw-bold">
+          Sub total: $
+          <div id="total" class="d-inline-flex">{{cart.get_total }}</div>
+        </div>
+          <a
+        class="btn btn-primary my-2"
+        type="button"
+        href="{% url 'checkout' %}"
+      >
+        <i class="fa fa-chevron-circle-right" aria-hidden="true"></i> &nbsp;Proceed to Checkout
+      </a>
+      </div>
+
+      {% else %}
+        <div class="container shadow-nd p-5 form-layout bg-light ">
+          <h5>Your Cart is Empty. Let's start shopping!</h5>
+          <hr />
+        </div>
+
+    {% endif %}
+    
+   
+  
+    <br />
+    <br />
+  </div>
+</main>
+
+<script>
+  // delete Button
+  $(document).on("click", ".delete-button", function (e) {
+    e.preventDefault();
+
+    $.ajax({
+      type: "POST", // request type
+      url: '{% url "cart-delete" %}', // from cart/url.py
+      data: {
+        product_id: $(this).data("index"), // this is used to find out which delete button is clicked
+        csrfmiddlewaretoken: "{{csrf_token}}", // this will security breach
+        action: "post", // type of request
+      },
+
+      success: function (json) {
+        // console.log(json)
+        location.reload();
+
+        document.getElementById("cart-qty").textContent = json.qty;
+        document.getElementById("total").textContent = json.cart_total;
+      },
+
+      error: function (xhr, errmsg, err) {},
+    });
+  });
+
+  // update button
+  $(document).on("click", ".update-button", function (e) {
+    e.preventDefault();
+
+    var theProductId = $(this).data("index");
+
+    $.ajax({
+      type: "POST", // request type
+      url: '{% url "cart-update" %}', // from cart/url.py
+      data: {
+        product_id: $(this).data("index"), // this is used to find out which delete button is clicked
+        product_qty: $("#select" + theProductId + " option:selected").text(),
+        csrfmiddlewaretoken: "{{csrf_token}}", // this will security breach
+        action: "post", // type of request
+      },
+
+      success: function (json) {
+        // console.log(json)
+        location.reload(true);
+
+        document.getElementById("cart-qty").textContent = json.qty;
+        document.getElementById("total").textContent = json.cart_total;
+      },
+
+      error: function (xhr, errmsg, err) {},
+    });
+  });
+</script>
+
+{% endblock %}

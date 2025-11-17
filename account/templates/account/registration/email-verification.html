@@ -1,0 +1,35 @@
+{% comment %}autoescape disables autoescaping for a specific block of template code. {% endcomment %}
+
+
+{% autoescape off %}
+
+Hi, 
+
+Thank you for regestring on our website
+
+Please be so kind as to verify your Email by clicking link below.
+
+https://{{domain}}{% url 'email-verification' uidb64=user_id token=token %}
+
+
+
+{% endautoescape %}
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

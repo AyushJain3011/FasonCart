@@ -1,0 +1,85 @@
+
+{% include "store/base.html" %}
+
+{% load static %}
+
+{% block content %}
+   <style>
+        body{
+            background-color: grey;
+        }
+
+
+    </style>
+
+
+     <body>
+        <br>
+        <div class="container bg-white shadow-nd p-5 form-layout">
+          
+          <h3> <i class="fa fa-list-alt" aria-hidden="true"></i> &nbsp; My Orders</h3>
+          <hr> 
+        
+        </div>
+
+        <br>
+
+        {% for order in orders %} {% with product=order.product %}
+        
+          <div class=" container bg-white shadow-nd d-flex justify-content-between align-items-center border p-3 form-layout">
+            <div>
+                <strong> <i class="fa fa-first-order" aria-hidden="true"></i> &nbsp;Order # {{ order.id}}</strong>
+                <br>
+                  {{order.product}}
+                <br>
+                Quantity: x {{order.quantity}}
+                <br>
+                Price: ${{order.price}}
+                <hr>
+            </div>
+
+
+            <div>
+              <a
+              href="{{product.get_absolute_url}}"
+              class="text-decoration-none text-reset"
+              >
+                <img
+                class="img-fluid mx-auto d-block"
+                width="100px"
+                alt="Responsive image"
+                src="{{product.image.url}}"
+            />
+            </a>
+            </div>
+            
+          </div>
+          <br>
+
+
+          {% endwith %}  
+          {% endfor %}
+            
+
+
+        
+      
+      </div>
+      </body>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
